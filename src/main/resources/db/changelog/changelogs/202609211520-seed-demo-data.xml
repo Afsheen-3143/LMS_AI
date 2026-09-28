@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Seed data for a fresh database - the same demo catalog the old in-memory
+        DemoDataStore used to hand-seed on every startup, now real persisted rows.
+        Keeps the S000001/S000002/CRS001 ids referenced by CLAUDE.md's documented
+        curl examples working unchanged.
+    -->
+
+    <changeSet id="202609211520-01" author="assistant">
+        <insert tableName="id_sequence">
+            <column name="seq_name" value="STUDENT"/>
+            <column name="next_val" valueNumeric="3"/>
+        </insert>
+        <insert tableName="id_sequence">
+            <column name="seq_name" value="COURSE"/>
+            <column name="next_val" valueNumeric="4"/>
+        </insert>
+        <insert tableName="id_sequence">
+            <column name="seq_name" value="PROGRAM"/>
+            <column name="next_val" valueNumeric="2"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-02" author="assistant">
+        <insert tableName="student">
+            <column name="student_id" value="S000001"/>
+            <column name="first_nm" value="Asha"/>
+            <column name="last_nm" value="Rao"/>
+            <column name="email_id" value="asha.rao@example.com"/>
+            <column name="mobile_num" value="9990000001"/>
+        </insert>
+        <insert tableName="student">
+            <column name="student_id" value="S000002"/>
+            <column name="first_nm" value="Vikram"/>
+            <column name="last_nm" value="Nair"/>
+            <column name="email_id" value="vikram.nair@example.com"/>
+            <column name="mobile_num" value="9990000002"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-03" author="assistant">
+        <insert tableName="course">
+            <column name="course_id" value="CRS001"/>
+            <column name="course_title" value="Advanced Java"/>
+            <column name="subject_nm" value="Backend Development"/>
+            <column name="description"
+                    value="Deep dive into multithreading, JVM internals, streams, and performance tuning."/>
+            <column name="language" value="English"/>
+            <column name="level" value="INTERMEDIATE"/>
+            <column name="skills" value="Java,Multithreading,JVM,Streams"/>
+        </insert>
+        <insert tableName="course">
+            <column name="course_id" value="CRS002"/>
+            <column name="course_title" value="Data Science with Python"/>
+            <column name="subject_nm" value="Data Science"/>
+            <column name="description" value="From pandas and NumPy to model building with scikit-learn."/>
+            <column name="language" value="English"/>
+            <column name="level" value="BEGINNER"/>
+            <column name="skills" value="Python,Pandas,NumPy,scikit-learn"/>
+        </insert>
+        <insert tableName="course">
+            <column name="course_id" value="CRS003"/>
+            <column name="course_title" value="Full-Stack Web Development"/>
+            <column name="subject_nm" value="Web Development"/>
+            <column name="description" value="Build and ship a complete web app: REST APIs, React, and deployment."/>
+            <column name="language" value="English"/>
+            <column name="level" value="BEGINNER"/>
+            <column name="skills" value="JavaScript,React,Node.js,REST APIs"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-04" author="assistant">
+        <insert tableName="program">
+            <column name="program_id" value="PRG001"/>
+            <column name="program_title" value="Backend Engineering Career Track"/>
+            <column name="description"
+                    value="A structured path from core Java to production-grade backend systems."/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-05" author="assistant">
+        <insert tableName="program_course">
+            <column name="program_id" value="PRG001"/>
+            <column name="course_id" value="CRS001"/>
+            <column name="sort_order" valueNumeric="1"/>
+        </insert>
+        <insert tableName="program_course">
+            <column name="program_id" value="PRG001"/>
+            <column name="course_id" value="CRS003"/>
+            <column name="sort_order" valueNumeric="2"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-06" author="assistant">
+        <insert tableName="course_fee_setting">
+            <column name="course_id" value="CRS001"/>
+            <column name="course_duration" value="8 weeks"/>
+            <column name="fee" valueNumeric="12000.00"/>
+            <column name="discount" valueNumeric="1000.00"/>
+        </insert>
+        <insert tableName="course_fee_setting">
+            <column name="course_id" value="CRS002"/>
+            <column name="course_duration" value="10 weeks"/>
+            <column name="fee" valueNumeric="15000.00"/>
+            <column name="discount" valueNumeric="0.00"/>
+        </insert>
+        <insert tableName="course_fee_setting">
+            <column name="course_id" value="CRS003"/>
+            <column name="course_duration" value="12 weeks"/>
+            <column name="fee" valueNumeric="18000.00"/>
+            <column name="discount" valueNumeric="2000.00"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-07" author="assistant">
+        <insert tableName="program_fee_setting">
+            <column name="program_id" value="PRG001"/>
+            <column name="duration" value="16 weeks"/>
+            <column name="fee" valueNumeric="25000.00"/>
+            <column name="discount" valueNumeric="3000.00"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-08" author="assistant">
+        <insert tableName="class_batch">
+            <column name="id" valueNumeric="1"/>
+            <column name="course_id" value="CRS001"/>
+            <column name="class_name" value="Java-Batch-Sep"/>
+            <column name="start_date" valueDate="2026-09-01"/>
+            <column name="end_date" valueDate="2026-10-27"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="capacity" valueNumeric="30"/>
+        </insert>
+        <insert tableName="class_batch">
+            <column name="id" valueNumeric="2"/>
+            <column name="course_id" value="CRS002"/>
+            <column name="class_name" value="DataScience-Batch-Oct"/>
+            <column name="start_date" valueDate="2026-10-05"/>
+            <column name="end_date" valueDate="2026-12-14"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="capacity" valueNumeric="25"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-09" author="assistant">
+        <insert tableName="class_schedule">
+            <column name="class_batch_id" valueNumeric="1"/>
+            <column name="class_name" value="Advanced Java - Multithreading"/>
+            <column name="class_date" valueDate="2026-09-08"/>
+            <column name="start_time" valueDate="19:00:00"/>
+            <column name="end_time" valueDate="20:30:00"/>
+            <column name="mode" value="ONLINE"/>
+            <column name="status" value="SCHEDULED"/>
+        </insert>
+        <insert tableName="class_schedule">
+            <column name="class_batch_id" valueNumeric="1"/>
+            <column name="class_name" value="Advanced Java - JVM Internals"/>
+            <column name="class_date" valueDate="2026-09-15"/>
+            <column name="start_time" valueDate="19:00:00"/>
+            <column name="end_time" valueDate="20:30:00"/>
+            <column name="mode" value="ONLINE"/>
+            <column name="status" value="SCHEDULED"/>
+        </insert>
+        <insert tableName="class_schedule">
+            <column name="class_batch_id" valueNumeric="2"/>
+            <column name="class_name" value="Data Science - pandas Deep Dive"/>
+            <column name="class_date" valueDate="2026-10-12"/>
+            <column name="start_time" valueDate="18:00:00"/>
+            <column name="end_time" valueDate="19:30:00"/>
+            <column name="mode" value="ONLINE"/>
+            <column name="status" value="SCHEDULED"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-10" author="assistant">
+        <insert tableName="enrollment">
+            <column name="id" valueNumeric="101"/>
+            <column name="student_id" value="S000002"/>
+            <column name="course_id" value="CRS001"/>
+            <column name="course_title" value="Advanced Java"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="payment_status" value="PAID"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="202609211520-11" author="assistant">
+        <insert tableName="class_student">
+            <column name="class_batch_id" valueNumeric="1"/>
+            <column name="student_id" value="S000001"/>
+        </insert>
+        <insert tableName="class_student">
+            <column name="class_batch_id" valueNumeric="1"/>
+            <column name="student_id" value="S000002"/>
+        </insert>
+        <insert tableName="class_student">
+            <column name="class_batch_id" valueNumeric="2"/>
+            <column name="student_id" value="S000002"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

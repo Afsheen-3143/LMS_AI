@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609031401" author="assistant">
+
+        <!--
+            Backs Spring AI's ChatMemoryRepository contract so conversation
+            history persists across app restarts and is queryable for the
+            GET /api/student-assistant/history/{sessionId} endpoint.
+            "session id" here is the same value Spring AI calls a
+            "conversation id".
+        -->
+        <createTable tableName="assistant_chat_message">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="pk_assistant_chat_message"
+                             nullable="false"/>
+            </column>
+
+            <column name="conversation_id" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="student_id" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- USER, ASSISTANT, SYSTEM, TOOL - mirrors Spring AI's MessageType -->
+            <column name="message_type" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="content" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="sequence_no" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="created_dt" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <createIndex tableName="assistant_chat_message" indexName="idx_assistant_chat_message_conversation">
+            <column name="conversation_id"/>
+            <column name="sequence_no"/>
+        </createIndex>
+
+        <createIndex tableName="assistant_chat_message" indexName="idx_assistant_chat_message_student">
+            <column name="student_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>

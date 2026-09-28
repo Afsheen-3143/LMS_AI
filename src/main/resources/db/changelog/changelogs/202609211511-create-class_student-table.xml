@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609211511" author="assistant">
+
+        <createTable tableName="class_student">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_class_student" nullable="false"/>
+            </column>
+
+            <column name="class_batch_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_class_student_batch"
+                             references="class_batch(id)"/>
+            </column>
+
+            <column name="student_id" type="VARCHAR(10)">
+                <constraints nullable="false" foreignKeyName="fk_class_student_student"
+                             references="student(student_id)"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint tableName="class_student"
+                              columnNames="class_batch_id, student_id"
+                              constraintName="uq_class_student_batch_student"/>
+
+    </changeSet>
+
+</databaseChangeLog>

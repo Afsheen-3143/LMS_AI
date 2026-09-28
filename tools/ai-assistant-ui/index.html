@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Enrollment Assistant</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #16213a;
+    --panel-2: #1c2947;
+    --border: #2a3a5c;
+    --text: #e6ebf5;
+    --text-dim: #93a2c2;
+    --accent: #5b8cff;
+    --accent-2: #3e6ae0;
+    --bubble-user: #2b4a9e;
+    --bubble-assistant: #223257;
+    --danger: #e5484d;
+    --success: #3ecf8e;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg); color: var(--text); }
+  body { display: flex; flex-direction: column; }
+
+  header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header .sub { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+
+  .layout { flex: 1; display: flex; min-height: 0; }
+
+  .sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+    background: var(--panel);
+  }
+  .sidebar label { display: block; font-size: 12px; color: var(--text-dim); margin: 12px 0 4px; }
+  .sidebar label:first-child { margin-top: 0; }
+  .sidebar input, .sidebar textarea {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .sidebar textarea { min-height: 90px; }
+  .row { display: flex; gap: 8px; margin-top: 10px; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover { background: var(--accent-2); }
+  button.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  button.secondary:hover { background: var(--panel-2); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .status-line { font-size: 11px; margin-top: 8px; color: var(--text-dim); word-break: break-all; }
+  .status-line.ok { color: var(--success); }
+  .status-line.err { color: var(--danger); }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .msg { display: flex; }
+  .msg.user { justify-content: flex-end; }
+  .bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg.user .bubble { background: var(--bubble-user); border-bottom-right-radius: 4px; }
+  .msg.assistant .bubble { background: var(--bubble-assistant); border-bottom-left-radius: 4px; }
+  .msg.system .bubble {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-dim);
+    font-size: 12px;
+    max-width: 90%;
+    margin: 0 auto;
+  }
+  .role-label { font-size: 11px; color: var(--text-dim); margin-bottom: 3px; }
+
+  .action-card {
+    margin-top: 8px;
+    border: 1px solid var(--accent);
+    background: var(--panel-2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .action-card h4 { margin: 0 0 8px; font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+  .action-card .field { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; color: var(--text-dim); }
+  .action-card .field b { color: var(--text); font-weight: 500; }
+  .action-card .btns { margin-top: 10px; display: flex; gap: 8px; }
+
+  #composer {
+    border-top: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  #composer textarea {
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    min-height: 44px;
+    max-height: 140px;
+  }
+  .typing { color: var(--text-dim); font-size: 12px; font-style: italic; padding-left: 20px; }
+  .hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>AI Enrollment Assistant</h1>
+    <div class="sub">Standalone test console for <code>/api/student-assistant/**</code></div>
+  </div>
+  <div class="row">
+    <button class="secondary" id="pingBtn">Ping API</button>
+    <button class="secondary" id="newSessionBtn">New session</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <label for="baseUrl">Backend base URL</label>
+    <input id="baseUrl" value="http://localhost:8080" />
+
+    <label for="studentId">Demo student ID</label>
+    <input id="studentId" value="S000001" />
+    <div class="row">
+      <button id="getTokenBtn">Get dev token</button>
+    </div>
+    <div class="hint">
+      Mints a token via <code>GET /api/dev/token/{studentId}</code> - a
+      demo-only endpoint that replaces the real host app's
+      register/login/OTP flow. Try <code>S000002</code> too - it already
+      has one demo enrollment seeded.
+    </div>
+
+    <label for="token">JWT (Authorization: Bearer &hellip;)</label>
+    <textarea id="token" placeholder="Click 'Get dev token', or paste one"></textarea>
+
+    <label for="sessionId">Session / conversation ID</label>
+    <input id="sessionId" placeholder="(blank = new session)" />
+
+    <div class="row">
+      <button id="saveBtn">Save</button>
+      <button class="secondary" id="loadHistoryBtn">Load history</button>
+    </div>
+
+    <div id="status" class="status-line">Not connected yet.</div>
+  </aside>
+
+  <main>
+    <div id="messages"></div>
+    <div id="typing" class="typing" hidden>Assistant is typing&hellip;</div>
+    <div id="composer">
+      <textarea id="input" placeholder="Ask about courses, fees, batches, or your enrollments&hellip;" rows="1"></textarea>
+      <button id="sendBtn">Send</button>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const baseUrlEl = $('baseUrl'), tokenEl = $('token'), sessionEl = $('sessionId'), studentIdEl = $('studentId');
+  const messagesEl = $('messages'), inputEl = $('input'), statusEl = $('status'), typingEl = $('typing');
+
+  const STORE_KEY = 'ai-assistant-ui';
+  function loadSettings() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+      if (saved.baseUrl) baseUrlEl.value = saved.baseUrl;
+      if (saved.token) tokenEl.value = saved.token;
+      if (saved.sessionId) sessionEl.value = saved.sessionId;
+      if (saved.studentId) studentIdEl.value = saved.studentId;
+    } catch (e) { /* ignore corrupt storage */ }
+  }
+  function saveSettings() {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      baseUrl: baseUrlEl.value.trim(),
+      token: tokenEl.value.trim(),
+      sessionId: sessionEl.value.trim(),
+      studentId: studentIdEl.value.trim(),
+    }));
+    setStatus('Settings saved locally.', 'ok');
+  }
+  loadSettings();
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text;
+    statusEl.className = 'status-line' + (kind ? ' ' + kind : '');
+  }
+
+  function addMessage(role, content) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    if (role !== 'system') {
+      const label = document.createElement('div');
+      label.className = 'role-label';
+      label.textContent = role === 'user' ? 'You' : 'Assistant';
+      wrap.appendChild(label);
+    }
+    bubble.textContent = content;
+    wrap.appendChild(bubble);
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return wrap;
+  }
+
+  function addActionCard(pendingAction, actionRequired) {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg assistant';
+    const card = document.createElement('div');
+    card.className = 'action-card';
+    card.style.maxWidth = '70%';
+
+    const h = document.createElement('h4');
+    h.textContent = actionRequired || 'Action required';
+    card.appendChild(h);
+
+    const fields = pendingAction || {};
+    Object.keys(fields).forEach((key) => {
+      const row = document.createElement('div');
+      row.className = 'field';
+      row.innerHTML = '<span>' + key + '</span><b></b>';
+      row.querySelector('b').textContent = String(fields[key]);
+      card.appendChild(row);
+    });
+
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    const confirmBtn = document.createElement('button');
+    confirmBtn.textContent = 'Confirm enrollment';
+    confirmBtn.onclick = () => confirmEnrollment(fields, wrap);
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'secondary';
+    cancelBtn.textContent = 'Dismiss';
+    cancelBtn.onclick = () => card.remove();
+    btns.appendChild(confirmBtn);
+    btns.appendChild(cancelBtn);
+    card.appendChild(btns);
+
+    wrap.appendChild(card);
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function authHeaders() {
+    const token = tokenEl.value.trim();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    return headers;
+  }
+
+  async function apiFetch(path, options) {
+    const base = baseUrlEl.value.trim().replace(/\/$/, '');
+    const res = await fetch(base + path, options);
+    if (!res.ok) {
+      let bodyText = '';
+      try { bodyText = await res.text(); } catch (e) {}
+      throw new Error('HTTP ' + res.status + (bodyText ? ' - ' + bodyText : ''));
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  $('pingBtn').onclick = async () => {
+    setStatus('Pinging&hellip;');
+    try {
+      const base = baseUrlEl.value.trim().replace(/\/$/, '');
+      const res = await fetch(base + '/v3/api-docs');
+      setStatus(res.ok ? 'Backend reachable (HTTP ' + res.status + ').' : 'Backend responded HTTP ' + res.status, res.ok ? 'ok' : 'err');
+    } catch (e) {
+      setStatus('Could not reach backend: ' + e.message, 'err');
+    }
+  };
+
+  $('getTokenBtn').onclick = async () => {
+    const studentId = studentIdEl.value.trim();
+    if (!studentId) { setStatus('Enter a demo student ID first.', 'err'); return; }
+    setStatus('Requesting dev token&hellip;');
+    try {
+      const result = await apiFetch('/api/dev/token/' + encodeURIComponent(studentId) + '?role=STUDENT', {});
+      tokenEl.value = result.token;
+      saveSettings();
+      setStatus('Token minted for ' + studentId + '.', 'ok');
+    } catch (e) {
+      setStatus('Failed to get token: ' + e.message, 'err');
+    }
+  };
+
+  $('saveBtn').onclick = saveSettings;
+
+  $('newSessionBtn').onclick = () => {
+    sessionEl.value = '';
+    saveSettings();
+    messagesEl.innerHTML = '';
+    addMessage('system', 'Started a new session. Send a message to begin.');
+  };
+
+  $('loadHistoryBtn').onclick = async () => {
+    const sessionId = sessionEl.value.trim();
+    if (!sessionId) { setStatus('Enter a session ID to load history.', 'err'); return; }
+    setStatus('Loading history&hellip;');
+    try {
+      const history = await apiFetch('/api/student-assistant/history/' + encodeURIComponent(sessionId), {
+        headers: authHeaders(),
+      });
+      messagesEl.innerHTML = '';
+      (history || []).forEach((m) => {
+        const role = (m.role || '').toUpperCase() === 'USER' ? 'user' : 'assistant';
+        addMessage(role, m.content);
+      });
+      setStatus('History loaded (' + (history ? history.length : 0) + ' messages).', 'ok');
+    } catch (e) {
+      setStatus('Failed to load history: ' + e.message, 'err');
+    }
+  };
+
+  async function confirmEnrollment(fields, cardWrap) {
+    setStatus('Confirming enrollment&hellip;');
+    try {
+      const body = {
+        courseId: fields.courseId || null,
+        programId: fields.programId || null,
+        batchId: fields.batchId != null ? Number(fields.batchId) : null,
+      };
+      const res = await apiFetch('/api/student-assistant/confirm-enrollment', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(body),
+      });
+      cardWrap.remove();
+      addMessage('assistant', (res && res.message) || (res && res.success ? 'Enrollment confirmed.' : 'Enrollment failed.'));
+      setStatus('Confirm-enrollment call completed.', 'ok');
+    } catch (e) {
+      setStatus('Confirm-enrollment failed: ' + e.message, 'err');
+    }
+  }
+
+  async function sendMessage() {
+    const message = inputEl.value.trim();
+    if (!message) return;
+    if (!tokenEl.value.trim()) { setStatus('Get or paste a JWT before chatting.', 'err'); return; }
+
+    addMessage('user', message);
+    inputEl.value = '';
+    autoGrow();
+    typingEl.hidden = false;
+    $('sendBtn').disabled = true;
+    setStatus('Sending&hellip;');
+
+    try {
+      const payload = {
+        message: message,
+        conversationId: sessionEl.value.trim() || null,
+      };
+      const res = await apiFetch('/api/student-assistant/chat', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res && res.conversationId && res.conversationId !== sessionEl.value.trim()) {
+        sessionEl.value = res.conversationId;
+        saveSettings();
+      }
+
+      addMessage('assistant', (res && res.response) || '(empty response)');
+
+      if (res && res.actionRequired) {
+        addActionCard(res.pendingAction, res.actionRequired);
+      }
+
+      setStatus('Ready.', 'ok');
+    } catch (e) {
+      addMessage('system', 'Error: ' + e.message);
+      setStatus(e.message, 'err');
+    } finally {
+      typingEl.hidden = true;
+      $('sendBtn').disabled = false;
+    }
+  }
+
+  $('sendBtn').onclick = sendMessage;
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  function autoGrow() {
+    inputEl.style.height = 'auto';
+    inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+  }
+  inputEl.addEventListener('input', autoGrow);
+
+  addMessage('system', 'Enter a student ID and click "Get dev token", then start chatting.');
+})();
+</script>
+
+</body>
+</html>

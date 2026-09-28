@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609211503" author="assistant">
+
+        <createTable tableName="program">
+
+            <column name="program_id" type="VARCHAR(10)">
+                <constraints primaryKey="true" primaryKeyName="pk_program" nullable="false"/>
+            </column>
+
+            <column name="program_title" type="VARCHAR(200)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="description" type="CLOB"/>
+
+            <!-- Audit fields -->
+
+            <column name="created_dt" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_dt" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_by" type="BIGINT"/>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

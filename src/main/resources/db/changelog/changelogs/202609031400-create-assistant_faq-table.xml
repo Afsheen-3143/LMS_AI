@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609031400" author="assistant">
+
+        <createTable tableName="assistant_faq">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"
+                             primaryKeyName="pk_assistant_faq"
+                             nullable="false"/>
+            </column>
+
+            <column name="category" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="question" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="answer" type="CLOB">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <!-- Audit fields -->
+
+            <column name="created_dt" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_dt" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_by" type="BIGINT"/>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,94 @@
+# ============================================
+# AI Enrollment Assistant + LMS backend
+# ============================================
+# All persistence (assistant_faq, assistant_chat_message, and the full LMS
+# domain under com.afsheen.aiassistant.lms - students, courses, programs,
+# batches, schedules, enrollments, fees) is real, Liquibase-managed MySQL.
+# See README.md. Start MySQL first: docker-compose up -d.
+
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ai-enrollment-assistant
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:ai_lms}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+
+  ai:
+    # Embeddings - Mistral's free "Experiment" tier (no billing/credit card,
+    # phone verification only): https://console.mistral.ai/api-keys
+    mistralai:
+      api-key: ${MISTRALAI_API_KEY:}
+      embedding:
+        options:
+          model: mistral-embed
+      chat:
+        options:
+          model: ${MISTRAL_CHAT_MODEL:mistral-small-latest}
+
+    # Chat completions - active provider (see SpringAiConfig
+    # @Qualifier("googleGenAiChatModel")). Free tier key:
+    # https://aistudio.google.com/apikey
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${GEMINI_CHAT_MODEL:gemini-3.6-flash}
+
+    # Unused alternate chat provider - swap the @Qualifier in
+    # SpringAiConfig to use this instead of Gemini.
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        options:
+          model: ${ANTHROPIC_CHAT_MODEL:claude-sonnet-5}
+
+    retry:
+      max-attempts: 4
+      backoff:
+        initial-interval: 3s
+        multiplier: 3
+        max-interval: 30s
+      on-http-codes:
+        - 429
+
+    vectorstore:
+      elasticsearch:
+        index-name: ai_assistant_knowledge_base
+        similarity: cosine
+        dimensions: 1024
+        initialize-schema: true
+
+# JWT signing secret, base64-encoded (jjwt's signWith(alg, String) decodes
+# it as base64). This is a demo-only default - never ship a hardcoded
+# secret like this to a real deployment; set JWT_SECRET explicitly there.
+jwt:
+  secret: ${JWT_SECRET:ZGVtby1vbmx5LWp3dC1zZWNyZXQtZm9yLWFpLWFzc2lzdGFudC1zaG93Y2FzZS1kby1ub3QtcmV1c2U=}
+
+springdoc:
+  swagger-ui:
+    persistAuthorization: true
+
+logging:
+  level:
+    com.afsheen.aiassistant: DEBUG

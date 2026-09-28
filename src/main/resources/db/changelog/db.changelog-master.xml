@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <include file="db/changelog/changelogs/202609031400-create-assistant_faq-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609031401-create-assistant_chat_message-table.xml" relativeToChangelogFile="false"/>
+
+    <include file="db/changelog/changelogs/202609211500-create-id_sequence-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211501-create-student-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211502-create-course-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211503-create-program-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211504-create-program_course-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211505-create-course_fee_setting-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211506-create-program_fee_setting-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211507-create-class_batch-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211508-create-class_schedule-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211509-create-enrollment-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211510-create-enrollment_batch-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211511-create-class_student-table.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/changelogs/202609211520-seed-demo-data.xml" relativeToChangelogFile="false"/>
+
+</databaseChangeLog>

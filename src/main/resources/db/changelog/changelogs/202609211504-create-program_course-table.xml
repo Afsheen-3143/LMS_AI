@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609211504" author="assistant">
+
+        <createTable tableName="program_course">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_program_course" nullable="false"/>
+            </column>
+
+            <column name="program_id" type="VARCHAR(10)">
+                <constraints nullable="false" foreignKeyName="fk_program_course_program"
+                             references="program(program_id)"/>
+            </column>
+
+            <column name="course_id" type="VARCHAR(10)">
+                <constraints nullable="false" foreignKeyName="fk_program_course_course"
+                             references="course(course_id)"/>
+            </column>
+
+            <column name="sort_order" type="INT"/>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>

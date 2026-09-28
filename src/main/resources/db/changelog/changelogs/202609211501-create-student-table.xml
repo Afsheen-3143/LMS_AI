@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="202609211501" author="assistant">
+
+        <createTable tableName="student">
+
+            <column name="student_id" type="VARCHAR(10)">
+                <constraints primaryKey="true" primaryKeyName="pk_student" nullable="false"/>
+            </column>
+
+            <column name="first_nm" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="last_nm" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="email_id" type="VARCHAR(150)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uq_student_email"/>
+            </column>
+
+            <column name="mobile_num" type="VARCHAR(20)"/>
+
+            <!-- Audit fields -->
+
+            <column name="created_dt" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_dt" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_by" type="BIGINT"/>
+
+        </createTable>
+
+    </changeSet>
+
+</databaseChangeLog>
